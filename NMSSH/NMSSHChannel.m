@@ -537,8 +537,7 @@
     // Try to send a file via SCP.
     struct stat fileinfo;
     stat(localPath.UTF8String, &fileinfo);
-    LIBSSH2_CHANNEL *channel = libssh2_scp_send64(self.session.rawSession, remotePath.UTF8String, fileinfo.st_mode & 0644,
-                                                  (unsigned long)fileinfo.st_size, 0, 0);;
+    LIBSSH2_CHANNEL *channel = libssh2_scp_send64(self.session.rawSession, remotePath.UTF8String, fileinfo.st_mode & 0644, (unsigned long)fileinfo.st_size, 0, 0);
 
     if (channel == NULL) {
         NMSSHLogError(@"Unable to open SCP session");

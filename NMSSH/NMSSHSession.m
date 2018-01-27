@@ -216,7 +216,7 @@
     NSUInteger index = 0;
     NSInteger port = (self.port).integerValue;
     NSArray *addresses = [self hostIPAddresses];
-    long error = kCFSocketSuccess;
+    CFSocketError error = kCFSocketSuccess;
     CFDataRef address = NULL;
     SInt32 addressFamily;
 
