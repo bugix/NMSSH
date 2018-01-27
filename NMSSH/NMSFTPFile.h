@@ -1,7 +1,7 @@
 #import "NMSSH.h"
 
 /**
- The NMSFTPFile class provides an interface to store file attributes retrieved 
+ The NMSFTPFile class provides an interface to store file attributes retrieved
  from a SFTP host.
  */
 @interface NMSFTPFile : NSObject <NSCopying>
@@ -38,7 +38,7 @@
 
 /**
  Initializes an NMSFTPFile instance and sets the filename.
- 
+
  @param filename The name of the underlying file.
  @return A new NMSFTPFile instance initialized with the corresponding filename.
  */
@@ -46,7 +46,7 @@
 
 /**
  Convenience initializer for creating an NMSFTPFile instance with a defined filename.
- 
+
  @param filename The name of the underlying file.
  @return A new NMSFTPFile instance initialized with the corresponding filename.
  */
@@ -54,7 +54,7 @@
 
 /**
  Populates the file properties with the attributes taken from the LIBSSH2_SFTP_ATTRIBUTES object.
- 
+
  @param fileAttributes The LIBSSH2_SFTP_ATTRIBUTES object that contains the attributes that are being extracted.
  */
 - (void)populateValuesFromSFTPAttributes:(LIBSSH2_SFTP_ATTRIBUTES)fileAttributes;

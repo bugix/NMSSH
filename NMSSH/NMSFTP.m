@@ -245,7 +245,7 @@
         NMSSHLogWarn(@"contentsAtPath:progress: failed to get file attributes");
         return nil;
     }
-    
+
     char buffer[self.bufferSize];
     NSMutableData *data = [[NSMutableData alloc] init];
     ssize_t rc;
@@ -323,28 +323,28 @@
     if (inputStream.streamStatus == NSStreamStatusNotOpen) {
         [inputStream open];
     }
-    
+
     if (!inputStream.hasBytesAvailable) {
         NMSSHLogWarn(@"No bytes available in the stream");
         return NO;
     }
-    
+
     LIBSSH2_SFTP_HANDLE *handle = [self openFileAtPath:path
                                                  flags:LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_READ
                                                   mode:LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH];
-    
+
     if (!handle) {
         [inputStream close];
         return NO;
     }
-    
+
     NMSSHLogVerbose(@"Resume destFile %@", path);
 
     BOOL success = [self resumeStream:inputStream toSFTPHandle:handle progress:progress];
 
     libssh2_sftp_close(handle);
     [inputStream close];
-    
+
     return success;
 }
 
@@ -360,12 +360,12 @@
         NMSSHLogError(@"Unable to get attributes of handle");
         return NO;
     }
-    
+
     libssh2_sftp_seek64(handle, attributes.filesize);
     NMSSHLogVerbose(@"Seek to position %llu of destFile", attributes.filesize);
-    
+
     [inputStream setProperty:@(attributes.filesize) forKey:NSStreamFileCurrentOffsetKey];
-    
+
     while (rc >= 0 && inputStream.hasBytesAvailable) {
         bytesRead = [inputStream read:buffer maxLength:self.bufferSize];
         if (bytesRead > 0) {
@@ -386,11 +386,11 @@
             }while(bytesRead);
         }
     }
-    
+
     if (bytesRead < 0 || rc < 0) {
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -444,7 +444,7 @@
     NSInteger bytesRead = -1;
     long rc = 0;
     NSUInteger total = 0;
-    
+
     while (rc >= 0 && inputStream.hasBytesAvailable) {
         bytesRead = [inputStream read:buffer maxLength:self.bufferSize];
         if (bytesRead > 0) {
@@ -477,19 +477,19 @@
 {
     // Open handle for reading.
     LIBSSH2_SFTP_HANDLE *fromHandle = [self openFileAtPath:fromPath flags:LIBSSH2_FXF_READ mode:0];
-    
+
     // Open handle for writing.
     LIBSSH2_SFTP_HANDLE *toHandle = [self openFileAtPath:toPath
                                                  flags:LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_READ
                                                   mode:LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH];
-    
+
     // Get information about the file to copy.
     NMSFTPFile *file = [self infoForFileAtPath:fromPath];
     if (!file) {
         NMSSHLogWarn(@"contentsAtPath:progress: failed to get file attributes");
         return NO;
     }
-    
+
     char buffer[self.bufferSize];
     ssize_t bytesRead;
     off_t copied = 0;
@@ -514,10 +514,10 @@
             }while(bytesRead);
         }
     }
-    
+
     libssh2_sftp_close(fromHandle);
     libssh2_sftp_close(toHandle);
-    
+
     return YES;
 }
 

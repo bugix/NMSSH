@@ -165,7 +165,7 @@
     if(!self.rawSession) {
         return [NSError errorWithDomain:@"libssh2" code:LIBSSH2_ERROR_NONE userInfo:@{NSLocalizedDescriptionKey : @"Error retrieving last session error due to absence of an active session."}];
     }
-    
+
     char *message;
     int error = libssh2_session_last_error(self.rawSession, &message, NULL, 0);
 
@@ -251,7 +251,7 @@
             NMSSHLogVerbose(@"Unknown address, it's not IPv4 or IPv6!");
             continue;
         }
-        
+
         // Try to create the socket
         _socket = CFSocketCreate(kCFAllocatorDefault, addressFamily, SOCK_STREAM, IPPROTO_IP, kCFSocketNoCallBack, NULL, NULL);
         if (!_socket) {
@@ -259,7 +259,7 @@
             CFRelease(address);
             return NO;
         }
-        
+
         // Set NOSIGPIPE
         int set = 1;
         if (setsockopt(CFSocketGetNative(_socket), SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(set)) != 0) {
@@ -268,7 +268,7 @@
             [self disconnect];
             return NO;
         }
-        
+
         error = CFSocketConnectToAddress(_socket, address, timeout.doubleValue);
         CFRelease(address);
 

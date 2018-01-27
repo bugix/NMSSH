@@ -42,7 +42,7 @@
 
 /**
  Ensures that the sorting of the files is according to their filenames.
- 
+
  @param file The other file that it should be compared to.
  @return The comparison result that determines the order of the two files.
  */
@@ -55,8 +55,6 @@
  @param object The other file that it should be compared with
  @return YES in case the two objects are considered equal, NO otherwise.
  */
-
-
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:[NMSFTPFile class]]) {
         return NO;
@@ -71,14 +69,14 @@
 /**
  Convert a mode field into "ls -l" type perms field. By courtesy of Jonathan Leffler
  http://stackoverflow.com/questions/10323060/printing-file-permissions-like-ls-l-using-stat2-in-c
- 
+
  @param mode The numeric mode that is returned by the 'stat' function
  @return A string containing the symbolic representation of the file permissions.
  */
 - (NSString *)convertPermissionToSymbolicNotation:(unsigned long)mode {
     static char *rwx[] = {"---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"};
     char bits[11];
-    
+
     bits[0] = [self filetypeletter:mode];
     strcpy(&bits[1], rwx[(mode >> 6)& 7]);
     strcpy(&bits[4], rwx[(mode >> 3)& 7]);
@@ -103,13 +101,13 @@
 
 /**
  Extracts the unix letter for the file type of the given permission value.
- 
+
  @param mode The numeric mode that is returned by the 'stat' function
  @return A character that represents the given file type.
  */
 - (char)filetypeletter:(unsigned long)mode {
     char c;
-    
+
     if (S_ISREG(mode)) {
         c = '-';
     }

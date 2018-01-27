@@ -18,7 +18,7 @@ typedef NS_OPTIONS(NSUInteger, NMSSHLogLevel) {
 
 /**
  Retrieve the shared logger instance
- 
+
  @returns Shared logger
  */
 + (instancetype) sharedLogger;

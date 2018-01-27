@@ -132,8 +132,7 @@
  @param destPath Path the link will be created at
  @returns Creation success
  */
-- (BOOL)createSymbolicLinkAtPath:(NSString *)linkPath
-             withDestinationPath:(NSString *)destPath;
+- (BOOL)createSymbolicLinkAtPath:(NSString *)linkPath withDestinationPath:(NSString *)destPath;
 
 /**
  Remove file at path
@@ -155,10 +154,10 @@
  Refer to contentsAtPath:
 
  This adds the ability to get periodic updates to bytes received.
- 
+
  @param path An existing file path
  @param progress Method called periodically with number of bytes downloaded and total file size.
-        Returns NO to abort. 
+        Returns NO to abort.
  @returns File contents
  */
 - (NSData *)contentsAtPath:(NSString *)path progress:(BOOL (^)(NSUInteger got, NSUInteger totalBytes))progress;
@@ -176,9 +175,9 @@
 
 /**
  Refer to writeContents:toFileAtPath:
- 
+
  This adds the ability to get periodic updates to bytes sent.
- 
+
  @param contents Bytes to write
  @param path File path to write bytes at
  @param progress Method called periodically with number of bytes sent.
@@ -200,9 +199,9 @@
 
 /**
  Refer to writeFileAtPath:toFileAtPath:
- 
+
  This adds the ability to get periodic updates to bytes sent.
- 
+
  @param localPath File path to read bytes at
  @param path File path to write bytes at
  @param progress Method called periodically with number of bytes sent.
@@ -224,9 +223,9 @@
 
 /**
  Refer to writeStream:toFileAtPath:
- 
+
  This adds the ability to get periodic updates to bytes sent.
- 
+
  @param inputStream Stream to read bytes from
  @param path File path to write bytes at
  @param progress Method called periodically with number of bytes sent.
@@ -289,7 +288,7 @@
 
 /**
  Copy a file remotely.
- 
+
  @param fromPath Path to copy from
  @param toPath Path to copy to
  */
