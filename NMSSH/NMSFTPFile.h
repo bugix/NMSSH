@@ -7,7 +7,7 @@
 @interface NMSFTPFile : NSObject <NSCopying>
 
 /**
- Property that stores the name of the underlaying file. 
+ Property that stores the name of the underlying file.
  Note that the file may also be a directory.
  */
 @property (nonatomic, readonly) NSString *filename;
@@ -39,7 +39,7 @@
 /**
  Initializes an NMSFTPFile instance and sets the filename.
  
- @param filename The name of the underlaying file.
+ @param filename The name of the underlying file.
  @return A new NMSFTPFile instance initialized with the corresponding filename.
  */
 - (instancetype)initWithFilename:(NSString *)filename;
@@ -47,7 +47,7 @@
 /**
  Convenience initializer for creating an NMSFTPFile instance with a defined filename.
  
- @param filename The name of the underlaying file.
+ @param filename The name of the underlying file.
  @return A new NMSFTPFile instance initialized with the corresponding filename.
  */
 + (instancetype)fileWithName:(NSString *)filename;

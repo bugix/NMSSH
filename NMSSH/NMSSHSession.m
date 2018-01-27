@@ -1,7 +1,5 @@
 #import "NMSSHSession.h"
 #import "NMSSH+Protected.h"
-#import "NMSSHConfig.h"
-#import "NMSSHHostConfig.h"
 
 @interface NMSSHSession ()
 @property (nonatomic, assign) LIBSSH2_AGENT *agent;
@@ -218,7 +216,7 @@
     NSUInteger index = 0;
     NSInteger port = [self.port integerValue];
     NSArray *addresses = [self hostIPAddresses];
-    CFSocketError error = kCFSocketSuccess;
+    long error = kCFSocketSuccess;
     CFDataRef address = NULL;
     SInt32 addressFamily;
 
@@ -535,7 +533,7 @@
 
 - (NSArray *)supportedAuthenticationMethods {
     char *userauthlist = libssh2_userauth_list(self.session, [self.username UTF8String],
-                                               (unsigned int)strlen([self.username UTF8String]));
+            strlen([self.username UTF8String]));
     if (userauthlist == NULL){
         NMSSHLogInfo(@"Failed to get authentication method for host %@:%@", self.host, self.port);
         return nil;
@@ -556,7 +554,9 @@
         return nil;
     }
 
-    int libssh2_hash, hashLength;
+    int libssh2_hash = 0;
+    int hashLength = 0;
+
     switch (hashType) {
         case NMSSHSessionHashMD5:
             libssh2_hash = LIBSSH2_HOSTKEY_HASH_MD5;
@@ -571,7 +571,7 @@
 
     const char *hash = libssh2_hostkey_hash(self.session, libssh2_hash);
     if (!hash) {
-        NMSSHLogWarn(@"Unable to retrive host's fingerprint");
+        NMSSHLogWarn(@"Unable to retrieve host's fingerprint");
         return nil;
     }
 
@@ -818,7 +818,7 @@ void kb_callback(const char *name, int name_len, const char *instr, int instr_le
         }
 
         res[i].text = strdup([response UTF8String]);
-        res[i].length = (unsigned int)strlen([response UTF8String]);
+        res[i].length = strlen([response UTF8String]);
     }
 }
 
@@ -828,12 +828,12 @@ void disconnect_callback(LIBSSH2_SESSION *session, int reason, const char *messa
     // Build a raw error to encapsulate the disconnect
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
     if (message) {
-        NSString *string = [[NSString alloc] initWithBytes:message length:message_len encoding:NSUTF8StringEncoding];
+        NSString *string = [[NSString alloc] initWithBytes:message length:(NSUInteger) message_len encoding:NSUTF8StringEncoding];
         [userInfo setObject:string forKey:NSLocalizedDescriptionKey];
     }
 
     if (language) {
-        NSString *string = [[NSString alloc] initWithBytes:language length:language_len encoding:NSUTF8StringEncoding];
+        NSString *string = [[NSString alloc] initWithBytes:language length:(NSUInteger) language_len encoding:NSUTF8StringEncoding];
         [userInfo setObject:string forKey:@"language"];
     }
 

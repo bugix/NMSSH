@@ -346,7 +346,7 @@ typedef enum {
             ++patternIndex;
 
             if (patternIndex == patternLength) {
-                // If at end of pattenr, accept immediately.
+                // If at end of pattern, accept immediately.
                 return YES;
             }
 

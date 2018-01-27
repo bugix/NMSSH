@@ -157,7 +157,7 @@
 }
 
 - (id)copyWithZone:(NSZone *)zone {
-    NMSFTPFile *object = [[[self class] allocWithZone:zone] init];
+    NMSFTPFile *object = (NMSFTPFile *) [[[self class] allocWithZone:zone] init];
 
     if (object) {
         object.filename = [self.filename copyWithZone:zone];

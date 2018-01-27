@@ -135,7 +135,7 @@
         rc = libssh2_sftp_readdir(handle, buffer, sizeof(buffer), &fileAttributes);
 
         if (rc > 0) {
-            NSString *fileName = [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding];
+            NSString *fileName = [[NSString alloc] initWithBytes:buffer length:(NSUInteger) rc encoding:NSUTF8StringEncoding];
             if (![ignoredFiles containsObject:fileName]) {
                 // Append a "/" at the end of all directories
                 if (LIBSSH2_SFTP_S_ISDIR(fileAttributes.permissions)) {
@@ -250,8 +250,8 @@
     NSMutableData *data = [[NSMutableData alloc] init];
     ssize_t rc;
     off_t got = 0;
-    while ((rc = libssh2_sftp_read(handle, buffer, (ssize_t)sizeof(buffer))) > 0) {
-        [data appendBytes:buffer length:rc];
+    while ((rc = libssh2_sftp_read(handle, buffer, (size_t)sizeof(buffer))) > 0) {
+        [data appendBytes:buffer length:(NSUInteger) rc];
         got += rc;
         if (progress && !progress((NSUInteger)got, (NSUInteger)[file.fileSize integerValue])) {
             libssh2_sftp_close(handle);
@@ -371,7 +371,7 @@
         if (bytesRead > 0) {
             uint8_t *ptr = buffer;
             do {
-                rc = libssh2_sftp_write(handle, (const char *)ptr, bytesRead);
+                rc = libssh2_sftp_write(handle, (const char *)ptr, (size_t)bytesRead);
                 if(rc < 0){
                     NMSSHLogWarn(@"libssh2_sftp_write failed (Error %li)", rc);
                     break;
@@ -450,7 +450,7 @@
         if (bytesRead > 0) {
             uint8_t *ptr = buffer;
             do {
-                rc = libssh2_sftp_write(handle, (const char *)ptr, bytesRead);
+                rc = libssh2_sftp_write(handle, (const char *)ptr, (size_t)bytesRead);
                 if(rc < 0){
                     NMSSHLogWarn(@"libssh2_sftp_write failed (Error %li)", rc);
                     break;
@@ -494,11 +494,11 @@
     ssize_t bytesRead;
     off_t copied = 0;
     long rc = 0;
-    while ((bytesRead = libssh2_sftp_read(fromHandle, buffer, (ssize_t)sizeof(buffer))) > 0) {
+    while ((bytesRead = libssh2_sftp_read(fromHandle, buffer, (size_t)sizeof(buffer))) > 0) {
         if (bytesRead > 0) {
             char *ptr = buffer;
             do {
-                rc = libssh2_sftp_write(toHandle, (const char *)ptr, (NSInteger)bytesRead);
+                rc = libssh2_sftp_write(toHandle, (const char *)ptr, (size_t)bytesRead);
                 if(rc < 0){
                     NMSSHLogWarn(@"libssh2_sftp_write failed (Error %li)", rc);
                     break;
