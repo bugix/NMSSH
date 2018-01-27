@@ -24,11 +24,11 @@
 
 - (instancetype)initWithSession:(NMSSHSession *)session {
     if ((self = [super init])) {
-        [self setSession:session];
+        self.session = session;
         [self setBufferSize:kNMSSHBufferSize];
         [self setRequestPty:NO];
-        [self setPtyTerminalType:NMSSHChannelPtyTerminalVanilla];
-        [self setType:NMSSHChannelTypeClosed];
+        self.ptyTerminalType = NMSSHChannelPtyTerminalVanilla;
+        self.type = NMSSHChannelTypeClosed;
 
         // Make sure we were provided a valid session
         if (![self.session isKindOfClass:[NMSSHSession class]]) {
@@ -67,13 +67,13 @@
         return NO;
     }
 
-    [self setChannel:channel];
+    self.channel = channel;
 
     // Try to set environment variables
     if (self.environmentVariables) {
         for (NSString *key in self.environmentVariables) {
-            if ([key isKindOfClass:[NSString class]] && [[self.environmentVariables objectForKey:key] isKindOfClass:[NSString class]]) {
-                libssh2_channel_setenv(self.channel, [key UTF8String], [[self.environmentVariables objectForKey:key] UTF8String]);
+            if ([key isKindOfClass:[NSString class]] && [(self.environmentVariables)[key] isKindOfClass:[NSString class]]) {
+                libssh2_channel_setenv(self.channel, [key UTF8String], [(self.environmentVariables)[key] UTF8String]);
             }
         }
     }
@@ -86,7 +86,7 @@
 
         if (rc != 0) {
             if (error) {
-                NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Error requesting %s pty: %@", self.ptyTerminalName, [[self.session lastError] localizedDescription]] };
+                NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Error requesting %s pty: %@", self.ptyTerminalName, (self.session).lastError.localizedDescription] };
 
                 *error = [NSError errorWithDomain:@"NMSSH"
                                              code:NMSSHChannelRequestPtyError
@@ -119,7 +119,7 @@
         }
 
         libssh2_channel_free(self.channel);
-        [self setType:NMSSHChannelTypeClosed];
+        self.type = NMSSHChannelTypeClosed;
         [self setChannel:NULL];
     }
 }
@@ -188,15 +188,15 @@
     [self setLastResponse:nil];
 
     int rc = 0;
-    [self setType:NMSSHChannelTypeExec];
+    self.type = NMSSHChannelTypeExec;
 
     // Try executing command
     rc = libssh2_channel_exec(self.channel, [command UTF8String]);
 
     if (rc != 0) {
         if (error) {
-            [userInfo setObject:[[self.session lastError] localizedDescription] forKey:NSLocalizedDescriptionKey];
-            [userInfo setObject:[NSString stringWithFormat:@"%zi", rc] forKey:NSLocalizedFailureReasonErrorKey];
+            userInfo[NSLocalizedDescriptionKey] = (self.session).lastError.localizedDescription;
+            userInfo[NSLocalizedFailureReasonErrorKey] = [NSString stringWithFormat:@"%zi", rc];
 
             *error = [NSError errorWithDomain:@"NMSSH"
                                          code:NMSSHChannelExecutionError
@@ -212,7 +212,7 @@
     libssh2_session_set_blocking(self.session.rawSession, 0);
 
     // Set the timeout for blocking session
-    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent() + [timeout doubleValue];
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent() + timeout.doubleValue;
 
     // Fetch response from output buffer
     NSMutableString *response = [[NSMutableString alloc] init];
@@ -238,8 +238,8 @@
                         desc = @"An unspecified error occurred";
                     }
 
-                    [userInfo setObject:desc forKey:NSLocalizedDescriptionKey];
-                    [userInfo setObject:[NSString stringWithFormat:@"%zi", erc] forKey:NSLocalizedFailureReasonErrorKey];
+                    userInfo[NSLocalizedDescriptionKey] = desc;
+                    userInfo[NSLocalizedFailureReasonErrorKey] = [NSString stringWithFormat:@"%zi", erc];
 
                     *error = [NSError errorWithDomain:@"NMSSH"
                                                  code:NMSSHChannelExecutionError
@@ -252,18 +252,18 @@
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
                 }
 
-                [self setLastResponse:[response copy]];
+                self.lastResponse = [response copy];
                 [self closeChannel];
 
                 return self.lastResponse;
             }
 
             // Check if the connection timed out
-            if ([timeout longValue] > 0 && time < CFAbsoluteTimeGetCurrent()) {
+            if (timeout.longValue > 0 && time < CFAbsoluteTimeGetCurrent()) {
                 if (error) {
                     NSString *desc = @"Connection timed out";
 
-                    [userInfo setObject:desc forKey:NSLocalizedDescriptionKey];
+                    userInfo[NSLocalizedDescriptionKey] = desc;
 
                     *error = [NSError errorWithDomain:@"NMSSH"
                                                  code:NMSSHChannelExecutionTimeout
@@ -274,7 +274,7 @@
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
                 }
 
-                [self setLastResponse:[response copy]];
+                self.lastResponse = [response copy];
                 [self closeChannel];
 
                 return self.lastResponse;
@@ -285,12 +285,12 @@
             break;
         }
 
-        waitsocket(CFSocketGetNative([self.session socket]), self.session.rawSession);
+        waitsocket(CFSocketGetNative((self.session).socket), self.session.rawSession);
     }
 
     // If we've got this far, it means fetching execution response failed
     if (error) {
-        [userInfo setObject:[[self.session lastError] localizedDescription] forKey:NSLocalizedDescriptionKey];
+        userInfo[NSLocalizedDescriptionKey] = (self.session).lastError.localizedDescription;
         *error = [NSError errorWithDomain:@"NMSSH"
                                      code:NMSSHChannelExecutionResponseError
                                  userInfo:userInfo];
@@ -324,8 +324,8 @@
 #endif
 
     [self setLastResponse:nil];
-    [self setSource:dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, CFSocketGetNative([self.session socket]),
-                                           0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0))];
+    self.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, CFSocketGetNative((self.session).socket),
+                                           0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
     dispatch_source_set_event_handler(self.source, ^{
         NMSSHLogVerbose(@"Data available on the socket!");
         ssize_t rc, erc=0;
@@ -348,7 +348,7 @@
             else if (rc > 0) {
                 NSData *data = [[NSData alloc] initWithBytes:buffer length:rc];
                 NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                [self setLastResponse:[response copy]];
+                self.lastResponse = [response copy];
 
                 if (response && self.delegate && [self.delegate respondsToSelector:@selector(channel:didReadData:)]) {
                     [self.delegate channel:self didReadData:self.lastResponse];
@@ -392,7 +392,7 @@
 
     // Try opening the shell
     while ((rc = libssh2_channel_shell(self.channel)) == LIBSSH2_ERROR_EAGAIN) {
-        waitsocket(CFSocketGetNative([self.session socket]), [self.session rawSession]);
+        waitsocket(CFSocketGetNative((self.session).socket), (self.session).session);
     }
 
     if (rc != 0) {
@@ -400,7 +400,7 @@
         if (error) {
             *error = [NSError errorWithDomain:@"NMSSH"
                                          code:NMSSHChannelRequestShellError
-                                     userInfo:@{ NSLocalizedDescriptionKey : [[self.session lastError] localizedDescription] }];
+                                     userInfo:@{ NSLocalizedDescriptionKey : (self.session).lastError.localizedDescription }];
         }
 
         [self closeShell];
@@ -408,7 +408,7 @@
     }
 
     NMSSHLogVerbose(@"Shell allocated");
-    [self setType:NMSSHChannelTypeShell];
+    self.type = NMSSHChannelTypeShell;
 
     return YES;
 }
@@ -453,12 +453,12 @@
     ssize_t rc;
 
     // Set the timeout
-    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent() + [timeout doubleValue];
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent() + timeout.doubleValue;
 
     // Try writing on shell
     while ((rc = libssh2_channel_write(self.channel, [data bytes], [data length])) == LIBSSH2_ERROR_EAGAIN) {
         // Check if the connection timed out
-        if ([timeout longValue] > 0 && time < CFAbsoluteTimeGetCurrent()) {
+        if (timeout.longValue > 0 && time < CFAbsoluteTimeGetCurrent()) {
             if (error) {
                 NSString *description = @"Connection timed out";
 
@@ -470,7 +470,7 @@
             return NO;
         }
 
-        waitsocket(CFSocketGetNative([self.session socket]), self.session.rawSession);
+        waitsocket(CFSocketGetNative((self.session).socket), self.session.rawSession);
     }
 
     if (rc < 0) {
@@ -479,7 +479,7 @@
             NSString *command = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             *error = [NSError errorWithDomain:@"NMSSH"
                                          code:NMSSHChannelWriteError
-                                     userInfo:@{ NSLocalizedDescriptionKey : [[self.session lastError] localizedDescription],
+                                     userInfo:@{ NSLocalizedDescriptionKey : (self.session).lastError.localizedDescription,
                                                  @"command"                : command }];
         }
     }
@@ -516,16 +516,16 @@
         }
     }
 
-    localPath = [localPath stringByExpandingTildeInPath];
+    localPath = localPath.stringByExpandingTildeInPath;
 
     // Inherit file name if to: contains a directory
     if ([remotePath hasSuffix:@"/"]) {
         remotePath = [remotePath stringByAppendingString:
-                      [[localPath componentsSeparatedByString:@"/"] lastObject]];
+                      [localPath componentsSeparatedByString:@"/"].lastObject];
     }
 
     // Read local file
-    FILE *local = fopen([localPath UTF8String], "rb");
+    FILE *local = fopen(localPath.UTF8String, "rb");
     if (!local) {
         NMSSHLogError(@"Can't read local file");
         return NO;
@@ -536,8 +536,8 @@
 
     // Try to send a file via SCP.
     struct stat fileinfo;
-    stat([localPath UTF8String], &fileinfo);
-    LIBSSH2_CHANNEL *channel = libssh2_scp_send64(self.session.rawSession, [remotePath UTF8String], fileinfo.st_mode & 0644,
+    stat(localPath.UTF8String, &fileinfo);
+    LIBSSH2_CHANNEL *channel = libssh2_scp_send64(self.session.rawSession, remotePath.UTF8String, fileinfo.st_mode & 0644,
                                                   (unsigned long)fileinfo.st_size, 0, 0);;
 
     if (channel == NULL) {
@@ -547,8 +547,8 @@
         return NO;
     }
 
-    [self setChannel:channel];
-    [self setType:NMSSHChannelTypeSCP];
+    self.channel = channel;
+    self.type = NMSSHChannelTypeSCP;
 
     // Wait for file transfer to finish
     char mem[self.bufferSize];
@@ -608,11 +608,11 @@
         }
     }
 
-    localPath = [localPath stringByExpandingTildeInPath];
+    localPath = localPath.stringByExpandingTildeInPath;
 
     // Inherit file name if to: contains a directory
     if ([localPath hasSuffix:@"/"]) {
-        localPath = [localPath stringByAppendingString:[[remotePath componentsSeparatedByString:@"/"] lastObject]];
+        localPath = [localPath stringByAppendingString:[remotePath componentsSeparatedByString:@"/"].lastObject];
     }
 
     // Set blocking mode
@@ -620,15 +620,15 @@
 
     // Request a file via SCP
     struct stat fileinfo;
-    LIBSSH2_CHANNEL *channel = libssh2_scp_recv(self.session.rawSession, [remotePath UTF8String], &fileinfo);
+    LIBSSH2_CHANNEL *channel = libssh2_scp_recv(self.session.rawSession, remotePath.UTF8String, &fileinfo);
 
     if (channel == NULL) {
         NMSSHLogError(@"Unable to open SCP session");
         return NO;
     }
 
-    [self setChannel:channel];
-    [self setType:NMSSHChannelTypeSCP];
+    self.channel = channel;
+    self.type = NMSSHChannelTypeSCP;
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:localPath]) {
         NMSSHLogInfo(@"A file already exists at %@, it will be overwritten", localPath);
@@ -636,7 +636,7 @@
     }
 
     // Open local file in order to write to it
-    int localFile = open([localPath UTF8String], O_WRONLY|O_CREAT, 0644);
+    int localFile = open(localPath.UTF8String, O_WRONLY|O_CREAT, 0644);
 
     // Save data to local file
     off_t got = 0;

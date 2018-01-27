@@ -1,7 +1,7 @@
 #import "NMSSHConfig.h"
 
 /** Describes how a host string matches a pattern in a NMSSHHostConfig. */
-typedef enum {
+typedef NS_ENUM(unsigned int, NMSSHConfigMatch) {
     /** Host matches a pattern */
     NMSSHConfigMatchPositive,
 
@@ -10,7 +10,7 @@ typedef enum {
 
     /** Host matches no patterns */
     NMSSHConfigMatchNone
-} NMSSHConfigMatch;
+};
 
 @interface NMSSHConfig ()
 
@@ -37,7 +37,7 @@ typedef enum {
     }
 
     if ((self = [super init])) {
-        [self setHostConfigs:[self arrayFromString:contents]];
+        self.hostConfigs = [self arrayFromString:contents];
         if (_hostConfigs == nil) {
             return nil;
         }
@@ -81,7 +81,7 @@ typedef enum {
     // Get the string value of the first token.
     NSString *keyword = [line substringWithRange:range];
     if ([keyword hasPrefix:@"#"] ||
-        [keyword length] == 0) {
+        keyword.length == 0) {
         return;
     }
 
@@ -111,78 +111,78 @@ typedef enum {
     while (hostRange.location != NSNotFound) {
         if (hostRange.length > 0) {
             NSString *hostPattern = [arguments substringWithRange:hostRange];
-            [config setHostPatterns:[config.hostPatterns arrayByAddingObject:hostPattern]];
+            config.hostPatterns = [config.hostPatterns arrayByAddingObject:hostPattern];
         }
 
         arguments = next;
         hostRange = [self rangeOfFirstTokenInString:arguments suffix:&next];
     }
 
-    if ([config.hostPatterns count] > 0) {
+    if ((config.hostPatterns).count > 0) {
         [array addObject:config];
     }
 }
 
 - (void)parseHostNameWithArguments:(NSString *)arguments
                          intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
-    if ([array count] == 0) {
+    if (array.count == 0) {
         return;
     }
-    NMSSHHostConfig *config = [array lastObject];
+    NMSSHHostConfig *config = array.lastObject;
     NSRange valueRange = [self rangeOfFirstTokenInString:arguments suffix:NULL];
 
     if (valueRange.location != NSNotFound &&
         valueRange.length > 0) {
-        [config setHostname:[arguments substringWithRange:valueRange]];
+        config.hostname = [arguments substringWithRange:valueRange];
     }
 }
 
 - (void)parseUserWithArguments:(NSString *)arguments
                      intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
-    if ([array count] == 0) {
+    if (array.count == 0) {
         return;
     }
-    NMSSHHostConfig *config = [array lastObject];
+    NMSSHHostConfig *config = array.lastObject;
     NSRange valueRange = [self rangeOfFirstTokenInString:arguments suffix:NULL];
 
     if (valueRange.location != NSNotFound &&
         valueRange.length > 0) {
-        [config setUser:[arguments substringWithRange:valueRange]];
+        config.user = [arguments substringWithRange:valueRange];
     }
 }
 
 - (void)parsePortWithArguments:(NSString *)arguments
                      intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
-    if ([array count] == 0) {
+    if (array.count == 0) {
         return;
     }
-    NMSSHHostConfig *config = [array lastObject];
+    NMSSHHostConfig *config = array.lastObject;
     NSRange valueRange = [self rangeOfFirstTokenInString:arguments suffix:NULL];
 
     if (valueRange.location != NSNotFound &&
         valueRange.length > 0) {
         NSString *portString = [arguments substringWithRange:valueRange];
-        NSInteger port = [portString intValue];
+        NSInteger port = portString.intValue;
 
         if (port >= 0) {
-            [config setPort:@(port & 0xffff)];
+            config.port = @(port & 0xffff);
         }
     }
 }
 
 - (void)parseIdentityFileWithArguments:(NSString *)arguments
                      intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
-    if ([array count] == 0) {
+    if (array.count == 0) {
         return;
     }
-    NMSSHHostConfig *config = [array lastObject];
+    NMSSHHostConfig *config = array.lastObject;
     NSRange valueRange = [self rangeOfFirstTokenInString:arguments suffix:NULL];
 
     if (valueRange.location != NSNotFound &&
         valueRange.length > 0) {
         NSString *identityFile =
-            [[arguments substringWithRange:valueRange] stringByExpandingTildeInPath];
-        [config setIdentityFiles:[config.identityFiles arrayByAddingObject:identityFile]];
+            [arguments substringWithRange:valueRange].stringByExpandingTildeInPath;
+        config.identityFiles = [config.identityFiles arrayByAddingObject:identityFile];
     }
 }
 
@@ -200,7 +200,7 @@ typedef enum {
                           startingAtIndex:(NSUInteger)location {
     NSUInteger start = location + 1;
     NSRange possiblyQuotedRange = NSMakeRange(start,
-                                              [line length] - start);
+                                              line.length - start);
     NSRange rangeOfCloseQuote = [line rangeOfString:@"\""
                                             options:0
                                               range:possiblyQuotedRange];
@@ -215,7 +215,7 @@ typedef enum {
 
 - (NSRange)rangeInString:(NSString *)line fromLocationUntilBlankOrEnd:(NSUInteger)location {
     NSRange tailRange = NSMakeRange(location,
-                                    [line length] - location);
+                                    line.length - location);
     NSRange terminatingBlank = [line rangeOfCharacterFromSet:[self blanksCharacterSet]
                                                      options:0
                                                        range:tailRange];
@@ -305,7 +305,7 @@ typedef enum {
     NMSSHConfigMatch match = NMSSHConfigMatchNone;
 
     for (NSString *mixedCasePattern in patterns) {
-        NSString *pattern = [mixedCasePattern lowercaseString];
+        NSString *pattern = mixedCasePattern.lowercaseString;
         BOOL negated = NO;
 
         if ([pattern hasPrefix:@"!"]) {

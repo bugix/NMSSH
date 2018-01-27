@@ -17,7 +17,7 @@
 
 - (instancetype)initWithFilename:(NSString *)filename {
     if ((self = [super init])) {
-        [self setFilename:filename];
+        self.filename = filename;
     }
 
     return self;
@@ -28,14 +28,14 @@
 }
 
 - (void)populateValuesFromSFTPAttributes:(LIBSSH2_SFTP_ATTRIBUTES)fileAttributes {
-    [self setModificationDate:[NSDate dateWithTimeIntervalSince1970:fileAttributes.mtime]];
-    [self setLastAccess:[NSDate dateWithTimeIntervalSinceNow:fileAttributes.atime]];
-    [self setFileSize:@(fileAttributes.filesize)];
-    [self setOwnerUserID:fileAttributes.uid];
-    [self setOwnerGroupID:fileAttributes.gid];
-    [self setPermissions:[self convertPermissionToSymbolicNotation:fileAttributes.permissions]];
+    self.modificationDate = [NSDate dateWithTimeIntervalSince1970:fileAttributes.mtime];
+    self.lastAccess = [NSDate dateWithTimeIntervalSinceNow:fileAttributes.atime];
+    self.fileSize = @(fileAttributes.filesize);
+    self.ownerUserID = fileAttributes.uid;
+    self.ownerGroupID = fileAttributes.gid;
+    self.permissions = [self convertPermissionToSymbolicNotation:fileAttributes.permissions];
     [self setIsDirectory:LIBSSH2_SFTP_S_ISDIR(fileAttributes.permissions)];
-    [self setFlags:fileAttributes.flags];
+    self.flags = fileAttributes.flags;
 }
 
 
@@ -99,7 +99,7 @@
 
     bits[10] = '\0';
 
-    return [NSString stringWithCString:bits encoding:NSUTF8StringEncoding];
+    return @(bits);
 }
 
 /**

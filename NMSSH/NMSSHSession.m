@@ -43,11 +43,11 @@
 
 - (instancetype)initWithHost:(NSString *)host port:(NSInteger)port andUsername:(NSString *)username {
     if ((self = [super init])) {
-        [self setHost:host];
-        [self setPort:@(port)];
-        [self setUsername:username];
+        self.host = host;
+        self.port = @(port);
+        self.username = username;
         [self setConnected:NO];
-        [self setFingerprintHash:NMSSHSessionHashMD5];
+        self.fingerprintHash = NMSSHSessionHashMD5;
     }
 
     return self;
@@ -68,17 +68,17 @@
 
     // Merge in defaults.
     NMSSHHostConfig *defaultHostConfig = [[NMSSHHostConfig alloc] init];
-    [defaultHostConfig setHostname:host];
-    [defaultHostConfig setPort:@(defaultPort)];
-    [defaultHostConfig setUser:defaultUsername];
+    defaultHostConfig.hostname = host;
+    defaultHostConfig.port = @(defaultPort);
+    defaultHostConfig.user = defaultUsername;
     [hostConfig mergeFrom:defaultHostConfig];
 
     // Initialize with resulting config.
     self = [self initWithHost:hostConfig.hostname
-                         port:[hostConfig.port integerValue]
+                         port:(hostConfig.port).integerValue
                   andUsername:hostConfig.user];
     if (self) {
-        [self setHostConfig:hostConfig];
+        self.hostConfig = hostConfig;
     }
 
     return self;
@@ -86,14 +86,14 @@
 
 - (instancetype)initWithHost:(NSString *)host andUsername:(NSString *)username {
     NSURL *url = [[self class] URLForHost:host];
-    return [self initWithHost:[url host]
-                         port:[([url port] ?: @22) intValue]
+    return [self initWithHost:url.host
+                         port:(url.port ?: @22).intValue
                   andUsername:username];
 }
 
 + (NSURL *)URLForHost:(NSString *)host {
     // Check if host is IPv6 and wrap in square brackets.
-    if ([[host componentsSeparatedByString:@":"] count] >= 3 &&
+    if ([host componentsSeparatedByString:@":"].count >= 3 &&
         ![host hasPrefix:@"["]) {
         host = [NSString stringWithFormat:@"[%@]", host];
     }
@@ -113,7 +113,7 @@
 
 - (NSArray *)hostIPAddresses {
     NSArray<NSString *> *hostComponents = [_host componentsSeparatedByString:@":"];
-    NSUInteger components = [hostComponents count];
+    NSUInteger components = hostComponents.count;
     NSString *address = hostComponents[0];
 
     // Check if the host is [{IPv6}]:{port}
@@ -157,7 +157,7 @@
 
 - (void)setTimeout:(NSNumber *)timeout {
     if (self.session) {
-        libssh2_session_set_timeout(self.session, [timeout longValue] * 1000);
+        libssh2_session_set_timeout(self.session, timeout.longValue * 1000);
     }
 }
 
@@ -171,7 +171,7 @@
 
     return [NSError errorWithDomain:@"libssh2"
                                code:error
-                           userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithUTF8String:message] }];
+                           userInfo:@{ NSLocalizedDescriptionKey: @(message) }];
 }
 
 - (NSString *)remoteBanner {
@@ -189,7 +189,7 @@
 // -----------------------------------------------------------------------------
 
 - (BOOL)connect {
-    return [self connectWithTimeout:[NSNumber numberWithLong:10]];
+    return [self connectWithTimeout:@10L];
 }
 
 - (BOOL)connectWithTimeout:(NSNumber *)timeout {
@@ -214,36 +214,36 @@
     }
     // Try to establish a connection to the server
     NSUInteger index = 0;
-    NSInteger port = [self.port integerValue];
+    NSInteger port = (self.port).integerValue;
     NSArray *addresses = [self hostIPAddresses];
     long error = kCFSocketSuccess;
     CFDataRef address = NULL;
     SInt32 addressFamily;
 
-    while (addresses && index < [addresses count] && error == kCFSocketSuccess) {
+    while (addresses && index < addresses.count && error == kCFSocketSuccess) {
         NSData *addressData = addresses[index++];
         NSString *ipAddress;
 
         // IPv4
-        if ([addressData length] == sizeof(struct sockaddr_in)) {
+        if (addressData.length == sizeof(struct sockaddr_in)) {
             struct sockaddr_in address4;
             [addressData getBytes:&address4 length:sizeof(address4)];
             address4.sin_port = htons(port);
 
             char str[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &(address4.sin_addr), str, INET_ADDRSTRLEN);
-            ipAddress = [NSString stringWithCString:str encoding:NSUTF8StringEncoding];
+            ipAddress = @(str);
             addressFamily = AF_INET;
             address = CFDataCreate(kCFAllocatorDefault, (UInt8 *)&address4, sizeof(address4));
         } // IPv6
-        else if([addressData length] == sizeof(struct sockaddr_in6)) {
+        else if(addressData.length == sizeof(struct sockaddr_in6)) {
             struct sockaddr_in6 address6;
             [addressData getBytes:&address6 length:sizeof(address6)];
             address6.sin6_port = htons(port);
 
             char str[INET6_ADDRSTRLEN];
             inet_ntop(AF_INET6, &(address6.sin6_addr), str, INET6_ADDRSTRLEN);
-            ipAddress = [NSString stringWithCString:str encoding:NSUTF8StringEncoding];
+            ipAddress = @(str);
             addressFamily = AF_INET6;
             address = CFDataCreate(kCFAllocatorDefault, (UInt8 *)&address6, sizeof(address6));
         }
@@ -269,7 +269,7 @@
             return NO;
         }
         
-        error = CFSocketConnectToAddress(_socket, address, [timeout doubleValue]);
+        error = CFSocketConnectToAddress(_socket, address, timeout.doubleValue);
         CFRelease(address);
 
         if (error) {
@@ -288,7 +288,7 @@
     }
 
     // Create a session instance
-    [self setSession:libssh2_session_init_ex(NULL, NULL, NULL, (__bridge void *)(self))];
+    self.session = libssh2_session_init_ex(NULL, NULL, NULL, (__bridge void *)(self));
 
     // Set a callback for disconnection
     libssh2_session_callback_set(self.session, LIBSSH2_CALLBACK_DISCONNECT, &disconnect_callback);
@@ -297,7 +297,7 @@
     libssh2_session_set_blocking(self.session, 1);
 
     // Set the custom banner
-    if (self.banner && libssh2_session_banner_set(self.session, [self.banner UTF8String])) {
+    if (self.banner && libssh2_session_banner_set(self.session, (self.banner).UTF8String)) {
         NMSSHLogError(@"Failure setting the banner");
     }
 
@@ -339,7 +339,7 @@
     }
 
     if (_sftp) {
-        if ([_sftp isConnected]) {
+        if (_sftp.connected) {
             [_sftp disconnect];
         }
         [self setSftp:nil];
@@ -353,7 +353,7 @@
 
     if (self.session) {
         libssh2_session_disconnect(self.session, "NMSSH: Disconnect");
-        [self setSessionToFree:self.session];
+        self.sessionToFree = self.session;
         [self setSession:NULL];
     }
 
@@ -413,8 +413,8 @@
     }
 
     // Get absolute paths for private/public key pair
-    const char *pubKey = [[publicKey stringByExpandingTildeInPath] UTF8String] ?: NULL;
-    const char *privKey = [[privateKey stringByExpandingTildeInPath] UTF8String] ?: NULL;
+    const char *pubKey = publicKey.stringByExpandingTildeInPath.UTF8String ?: NULL;
+    const char *privKey = privateKey.stringByExpandingTildeInPath.UTF8String ?: NULL;
 
     // Try to authenticate with key pair and password
     int error = libssh2_userauth_publickey_fromfile(self.session,
@@ -446,13 +446,13 @@
 
     // Try to authenticate with key pair and password
     int error = libssh2_userauth_publickey_frommemory(self.session,
-                                                    [self.username UTF8String],
-                                                    [self.username length],
-                                                    [publicKey UTF8String] ?: nil,
-                                                    [publicKey length] ?: 0,
-                                                    [privateKey UTF8String] ?: nil,
-                                                    [privateKey length] ?: 0,
-                                                    [password UTF8String]);
+                                                    (self.username).UTF8String,
+                                                    (self.username).length,
+                                                    publicKey.UTF8String ?: nil,
+                                                    publicKey.length ?: 0,
+                                                    privateKey.UTF8String ?: nil,
+                                                    privateKey.length ?: 0,
+                                                    password.UTF8String);
 
     if (error) {
         NMSSHLogError(@"Public key authentication failed with reason %i", error);
@@ -493,7 +493,7 @@
     }
 
     // Try to setup a connection to the SSH-agent
-    [self setAgent:libssh2_agent_init(self.session)];
+    self.agent = libssh2_agent_init(self.session);
     if (!self.agent) {
         NMSSHLogError(@"Could not start a new agent");
         return NO;
@@ -520,7 +520,7 @@
             return NO;
         }
 
-        error = libssh2_agent_userauth(self.agent, [self.username UTF8String], identity);
+        error = libssh2_agent_userauth(self.agent, (self.username).UTF8String, identity);
         if (!error) {
             return self.isAuthorized;
         }
@@ -532,14 +532,14 @@
 }
 
 - (NSArray *)supportedAuthenticationMethods {
-    char *userauthlist = libssh2_userauth_list(self.session, [self.username UTF8String],
-            strlen([self.username UTF8String]));
+    char *userauthlist = libssh2_userauth_list(self.session, (self.username).UTF8String,
+            strlen((self.username).UTF8String));
     if (userauthlist == NULL){
         NMSSHLogInfo(@"Failed to get authentication method for host %@:%@", self.host, self.port);
         return nil;
     }
 
-    NSString *authList = [NSString stringWithCString:userauthlist encoding:NSUTF8StringEncoding];
+    NSString *authList = @(userauthlist);
     NMSSHLogVerbose(@"User auth list: %@", authList);
 
     return [authList componentsSeparatedByString:@","];
@@ -645,7 +645,7 @@
     }
 
     int rc = libssh2_knownhost_readfile(knownHosts,
-                                        [filename UTF8String],
+                                        filename.UTF8String,
                                         LIBSSH2_KNOWNHOST_FILE_OPENSSH);
     if (rc < 0) {
         libssh2_knownhost_free(knownHosts);
@@ -674,8 +674,8 @@
     struct libssh2_knownhost *host;
     NMSSHLogInfo(@"Check for host %@, port %@ in file %@", self.host, self.port, filename);
     int check = libssh2_knownhost_checkp(knownHosts,
-                                         [self.host UTF8String],
-                                         [self.port intValue],
+                                         (self.host).UTF8String,
+                                         (self.port).intValue,
                                          remotekey,
                                          keylen,
                                          (LIBSSH2_KNOWNHOST_TYPE_PLAIN |
@@ -734,7 +734,7 @@
         return NO;
     }
 
-    int rc = libssh2_knownhost_readfile(knownHosts, [fileName UTF8String], LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+    int rc = libssh2_knownhost_readfile(knownHosts, fileName.UTF8String, LIBSSH2_KNOWNHOST_FILE_OPENSSH);
     if (rc < 0 && rc != LIBSSH2_ERROR_FILE) {
         NMSSHLogError(@"Failed to read known hosts file.");
         libssh2_knownhost_free(knownHosts);
@@ -758,8 +758,8 @@
     }
 
     int result = libssh2_knownhost_addc(knownHosts,
-                                        [hostname UTF8String],
-                                        [salt UTF8String],
+                                        hostname.UTF8String,
+                                        salt.UTF8String,
                                         hostkey,
                                         hklen,
                                         NULL,
@@ -773,7 +773,7 @@
     }
     else {
         result = libssh2_knownhost_writefile(knownHosts,
-                                             [fileName UTF8String],
+                                             fileName.UTF8String,
                                              LIBSSH2_KNOWNHOST_FILE_OPENSSH);
         if (result < 0) {
             NMSSHLogError(@"Couldn't write to %@: %@",
@@ -817,8 +817,8 @@ void kb_callback(const char *name, int name_len, const char *instr, int instr_le
             response = @"";
         }
 
-        res[i].text = strdup([response UTF8String]);
-        res[i].length = strlen([response UTF8String]);
+        res[i].text = strdup(response.UTF8String);
+        res[i].length = strlen(response.UTF8String);
     }
 }
 
@@ -829,12 +829,12 @@ void disconnect_callback(LIBSSH2_SESSION *session, int reason, const char *messa
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
     if (message) {
         NSString *string = [[NSString alloc] initWithBytes:message length:(NSUInteger) message_len encoding:NSUTF8StringEncoding];
-        [userInfo setObject:string forKey:NSLocalizedDescriptionKey];
+        userInfo[NSLocalizedDescriptionKey] = string;
     }
 
     if (language) {
         NSString *string = [[NSString alloc] initWithBytes:language length:(NSUInteger) language_len encoding:NSUTF8StringEncoding];
-        [userInfo setObject:string forKey:@"language"];
+        userInfo[@"language"] = string;
     }
 
     NSError *error = [NSError errorWithDomain:@"NMSSH" code:reason userInfo:userInfo];

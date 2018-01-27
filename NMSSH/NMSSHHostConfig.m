@@ -4,8 +4,8 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        [self setHostPatterns:@[ ]];
-        [self setIdentityFiles:@[ ]];
+        self.hostPatterns = @[ ];
+        self.identityFiles = @[ ];
     }
     return self;
 }
@@ -26,19 +26,19 @@
 }
 
 - (void)mergeFrom:(NMSSHHostConfig *)other {
-    [self setHostPatterns:[self mergedArray:self.hostPatterns
-                                  withArray:other.hostPatterns]];
+    self.hostPatterns = [self mergedArray:self.hostPatterns
+                                  withArray:other.hostPatterns];
     if (!self.hostname) {
-        [self setHostname:other.hostname];
+        self.hostname = other.hostname;
     }
     if (!self.user) {
-        [self setUser:other.user];
+        self.user = other.user;
     }
     if (self.port == nil) {
-        [self setPort:other.port];
+        self.port = other.port;
     }
-    [self setIdentityFiles:[self mergedArray:self.identityFiles
-                                   withArray:other.identityFiles]];
+    self.identityFiles = [self mergedArray:self.identityFiles
+                                   withArray:other.identityFiles];
 }
 
 @end

@@ -35,11 +35,11 @@ typedef NS_OPTIONS(NSUInteger, NMSSHLogFlag) {
     dispatch_once(&onceToken, ^{
         logger = [[NMSSHLogger alloc] init];
         [logger setEnabled:YES];
-        [logger setLogLevel:NMSSHLogLevelVerbose];
-        [logger setLogBlock:^(NMSSHLogLevel level, NSString *format) {
+        logger.logLevel = NMSSHLogLevelVerbose;
+        logger.logBlock = ^(NMSSHLogLevel level, NSString *format) {
             NSLog(@"%@", format);
-        }];
-        [logger setLoggerQueue:dispatch_queue_create("NMSSH.loggerQueue", DISPATCH_QUEUE_SERIAL)];
+        };
+        logger.loggerQueue = dispatch_queue_create("NMSSH.loggerQueue", DISPATCH_QUEUE_SERIAL);
     });
 
     return logger;

@@ -26,7 +26,7 @@
 
 - (instancetype)initWithSession:(NMSSHSession *)session {
     if ((self = [super init])) {
-        [self setSession:session];
+        self.session = session;
 
         // Make sure we were provided a valid session
         if (![session isKindOfClass:[NMSSHSession class]]) {
@@ -45,7 +45,7 @@
     // Set blocking mode
     libssh2_session_set_blocking(self.session.rawSession, 1);
 
-    [self setSftpSession:libssh2_sftp_init(self.session.rawSession)];
+    self.sftpSession = libssh2_sftp_init(self.session.rawSession);
 
     if (!self.sftpSession) {
         NMSSHLogError(@"Unable to init SFTP session");
@@ -79,10 +79,10 @@
     LIBSSH2_SFTP_HANDLE *handle = libssh2_sftp_opendir(self.sftpSession, [path UTF8String]);
 
     if (!handle) {
-        NSError *error = [self.session lastError];
+        NSError *error = (self.session).lastError;
         NMSSHLogError(@"Could not open directory at path %@ (Error %li: %@)", path, (long)error.code, error.localizedDescription);
 
-        if ([error code] == LIBSSH2_ERROR_SFTP_PROTOCOL) {
+        if (error.code == LIBSSH2_ERROR_SFTP_PROTOCOL) {
             NMSSHLogError(@"SFTP error %lu", libssh2_sftp_last_error(self.sftpSession));
         }
     }
@@ -193,10 +193,10 @@
     LIBSSH2_SFTP_HANDLE *handle = libssh2_sftp_open(self.sftpSession, [path UTF8String], flags, mode);
 
     if (!handle) {
-        NSError *error = [self.session lastError];
+        NSError *error = (self.session).lastError;
         NMSSHLogError(@"Could not open file at path %@ (Error %li: %@)", path, (long)error.code, error.localizedDescription);
 
-        if ([error code] == LIBSSH2_ERROR_SFTP_PROTOCOL) {
+        if (error.code == LIBSSH2_ERROR_SFTP_PROTOCOL) {
             NMSSHLogError(@"SFTP error %lu", libssh2_sftp_last_error(self.sftpSession));
         }
     }
@@ -253,7 +253,7 @@
     while ((rc = libssh2_sftp_read(handle, buffer, (size_t)sizeof(buffer))) > 0) {
         [data appendBytes:buffer length:(NSUInteger) rc];
         got += rc;
-        if (progress && !progress((NSUInteger)got, (NSUInteger)[file.fileSize integerValue])) {
+        if (progress && !progress((NSUInteger)got, (NSUInteger)(file.fileSize).integerValue)) {
             libssh2_sftp_close(handle);
             return nil;
         }
@@ -289,11 +289,11 @@
 }
 
 - (BOOL)writeStream:(NSInputStream *)inputStream toFileAtPath:(NSString *)path progress:(BOOL (^)(NSUInteger))progress {
-    if ([inputStream streamStatus] == NSStreamStatusNotOpen) {
+    if (inputStream.streamStatus == NSStreamStatusNotOpen) {
         [inputStream open];
     }
 
-    if (![inputStream hasBytesAvailable]) {
+    if (!inputStream.hasBytesAvailable) {
         NMSSHLogWarn(@"No bytes available in the stream");
         return NO;
     }
@@ -320,11 +320,11 @@
 }
 
 - (BOOL)resumeStream:(NSInputStream *)inputStream toFileAtPath:(NSString *)path progress:(BOOL (^)( NSUInteger, NSUInteger ))progress {
-    if ([inputStream streamStatus] == NSStreamStatusNotOpen) {
+    if (inputStream.streamStatus == NSStreamStatusNotOpen) {
         [inputStream open];
     }
     
-    if (![inputStream hasBytesAvailable]) {
+    if (!inputStream.hasBytesAvailable) {
         NMSSHLogWarn(@"No bytes available in the stream");
         return NO;
     }
@@ -364,9 +364,9 @@
     libssh2_sftp_seek64(handle, attributes.filesize);
     NMSSHLogVerbose(@"Seek to position %llu of destFile", attributes.filesize);
     
-    [inputStream setProperty:[NSNumber numberWithUnsignedLongLong:attributes.filesize] forKey:NSStreamFileCurrentOffsetKey];
+    [inputStream setProperty:@(attributes.filesize) forKey:NSStreamFileCurrentOffsetKey];
     
-    while (rc >= 0 && [inputStream hasBytesAvailable]) {
+    while (rc >= 0 && inputStream.hasBytesAvailable) {
         bytesRead = [inputStream read:buffer maxLength:self.bufferSize];
         if (bytesRead > 0) {
             uint8_t *ptr = buffer;
@@ -399,11 +399,11 @@
 }
 
 - (BOOL)appendStream:(NSInputStream *)inputStream toFileAtPath:(NSString *)path {
-    if ([inputStream streamStatus] == NSStreamStatusNotOpen) {
+    if (inputStream.streamStatus == NSStreamStatusNotOpen) {
         [inputStream open];
     }
 
-    if (![inputStream hasBytesAvailable]) {
+    if (!inputStream.hasBytesAvailable) {
         NMSSHLogWarn(@"No bytes available in the stream");
         return NO;
     }
@@ -445,7 +445,7 @@
     long rc = 0;
     NSUInteger total = 0;
     
-    while (rc >= 0 && [inputStream hasBytesAvailable]) {
+    while (rc >= 0 && inputStream.hasBytesAvailable) {
         bytesRead = [inputStream read:buffer maxLength:self.bufferSize];
         if (bytesRead > 0) {
             uint8_t *ptr = buffer;
@@ -506,7 +506,7 @@
                 copied += rc;
                 ptr += rc;
                 bytesRead -= rc;
-                if (progress && !progress((NSUInteger)copied, (NSUInteger)[file.fileSize integerValue])) {
+                if (progress && !progress((NSUInteger)copied, (NSUInteger)(file.fileSize).integerValue)) {
                     libssh2_sftp_close(fromHandle);
                     libssh2_sftp_close(toHandle);
                     return NO;
