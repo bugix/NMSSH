@@ -1,5 +1,3 @@
-#import <UIKit/UIKit.h>
-
 //! Project version number for NMSSH.
 FOUNDATION_EXPORT double NMSSHVersionNumber;
 
