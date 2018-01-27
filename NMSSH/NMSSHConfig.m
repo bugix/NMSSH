@@ -1,5 +1,4 @@
 #import "NMSSHConfig.h"
-#import "NMSSHHostConfig.h"
 
 /** Describes how a host string matches a pattern in a NMSSHHostConfig. */
 typedef enum {
@@ -15,7 +14,7 @@ typedef enum {
 
 @interface NMSSHConfig ()
 
-@property(nonatomic, strong) NSArray *hostConfigs;
+@property(nonatomic, strong) NSArray<NMSSHHostConfig *> *hostConfigs;
 
 @end
 
@@ -51,16 +50,16 @@ typedef enum {
 #pragma mark - PARSING
 // -----------------------------------------------------------------------------
 
-- (NSArray *)arrayFromString:(NSString *)contents {
+- (NSArray<NSString *> *)arrayFromString:(NSString *)contents {
     if (contents == nil) {
         return nil;
     }
 
     contents = [contents stringByReplacingOccurrencesOfString:@"\r\n"
                                                    withString:@"\n"];
-    NSArray *lines = [contents componentsSeparatedByString:@"\n"];
+    NSArray<NSString *> *lines = [contents componentsSeparatedByString:@"\n"];
 
-    NSMutableArray *array = [NSMutableArray array];
+    NSMutableArray<NSString *> *array = [NSMutableArray<NSString *> array];
     for (NSString *line in lines) {
         [self parseLine:line intoArray:array];
     }
@@ -68,7 +67,7 @@ typedef enum {
     return [array copy];
 }
 
-- (void)parseLine:(NSString *)line intoArray:(NSMutableArray *)array {
+- (void)parseLine:(NSString *)line intoArray:(NSMutableArray<NSString *> *)array {
     // Trim spaces
     line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 
@@ -104,7 +103,7 @@ typedef enum {
     }
 }
 
-- (void)parseHostWithArguments:(NSString *)arguments intoArray:(NSMutableArray *)array {
+- (void)parseHostWithArguments:(NSString *)arguments intoArray:(NSMutableArray<NSString *> *)array {
     NMSSHHostConfig *config = [[NMSSHHostConfig alloc] init];
     NSString *next;
 
@@ -125,7 +124,7 @@ typedef enum {
 }
 
 - (void)parseHostNameWithArguments:(NSString *)arguments
-                         intoArray:(NSMutableArray *)array {
+                         intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     if ([array count] == 0) {
         return;
     }
@@ -139,7 +138,7 @@ typedef enum {
 }
 
 - (void)parseUserWithArguments:(NSString *)arguments
-                     intoArray:(NSMutableArray *)array {
+                     intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     if ([array count] == 0) {
         return;
     }
@@ -153,7 +152,7 @@ typedef enum {
 }
 
 - (void)parsePortWithArguments:(NSString *)arguments
-                     intoArray:(NSMutableArray *)array {
+                     intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     if ([array count] == 0) {
         return;
     }
@@ -172,7 +171,7 @@ typedef enum {
 }
 
 - (void)parseIdentityFileWithArguments:(NSString *)arguments
-                     intoArray:(NSMutableArray *)array {
+                     intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     if ([array count] == 0) {
         return;
     }
@@ -302,7 +301,7 @@ typedef enum {
 // negative match. Otherwise, if the host matches any non-negated subpattern then it is a positive
 // match. If the host matches no patterns then it is a None match.
 - (NMSSHConfigMatch)host:(NSString *)host matchesPatternList:(NSString *)patternList {
-    NSArray *patterns = [patternList componentsSeparatedByString:@","];
+    NSArray<NSString *> *patterns = [patternList componentsSeparatedByString:@","];
     NMSSHConfigMatch match = NMSSHConfigMatchNone;
 
     for (NSString *mixedCasePattern in patterns) {

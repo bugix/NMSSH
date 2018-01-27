@@ -56,7 +56,7 @@
 }
 
 - (instancetype)initWithHost:(NSString *)host
-                     configs:(NSArray *)configs
+                     configs:(NSArray<NMSSHConfig *> *)configs
              withDefaultPort:(NSInteger)defaultPort
              defaultUsername:(NSString *)defaultUsername {
     // Merge matching entries from configs together.
@@ -114,8 +114,8 @@
 // -----------------------------------------------------------------------------
 
 - (NSArray *)hostIPAddresses {
-    NSArray *hostComponents = [_host componentsSeparatedByString:@":"];
-    NSInteger components = [hostComponents count];
+    NSArray<NSString *> *hostComponents = [_host componentsSeparatedByString:@":"];
+    NSUInteger components = [hostComponents count];
     NSString *address = hostComponents[0];
 
     // Check if the host is [{IPv6}]:{port}
@@ -215,15 +215,15 @@
         return NO;
     }
     // Try to establish a connection to the server
-    NSUInteger index = -1;
+    NSUInteger index = 0;
     NSInteger port = [self.port integerValue];
     NSArray *addresses = [self hostIPAddresses];
-    CFSocketError error = 1;
+    CFSocketError error = kCFSocketSuccess;
     CFDataRef address = NULL;
     SInt32 addressFamily;
 
-    while (addresses && ++index < [addresses count] && error) {
-        NSData *addressData = addresses[index];
+    while (addresses && index < [addresses count] && error == kCFSocketSuccess) {
+        NSData *addressData = addresses[index++];
         NSString *ipAddress;
 
         // IPv4
@@ -278,7 +278,7 @@
             NMSSHLogVerbose(@"Socket connection to %@ on port %ld failed with reason %li, trying next address...", ipAddress, (long)port, error);
         }
         else {
-            NMSSHLogInfo(@"Socket connection to %@ on port %ld succesful", ipAddress, (long)port);
+            NMSSHLogInfo(@"Socket connection to %@ on port %ld successful", ipAddress, (long)port);
         }
     }
 
@@ -617,7 +617,7 @@
 }
 #endif
 
-- (NMSSHKnownHostStatus)knownHostStatusInFiles:(NSArray *)files {
+- (NMSSHKnownHostStatus)knownHostStatusInFiles:(NSArray<NSString *> *)files {
     if (!files) {
 #if TARGET_OS_IPHONE
         files = @[[self userKnownHostsFileName]];

@@ -128,7 +128,7 @@ typedef NS_ENUM(NSInteger, NMSSHKnownHostStatus) {
      overridden by a config)
  */
 - (instancetype)initWithHost:(NSString *)host
-                     configs:(NSArray *)configs
+                     configs:(NSArray<NMSSHConfig *> *)configs
              withDefaultPort:(NSInteger)defaultPort
              defaultUsername:(NSString *)defaultUsername;
 
@@ -276,9 +276,9 @@ typedef NS_ENUM(NSInteger, NMSSHKnownHostStatus) {
 /**
  Get supported authentication methods
 
- @returns Array of string descripting supported authentication methods
+ @returns Array of string describing supported authentication methods
  */
-- (NSArray *)supportedAuthenticationMethods;
+- (NSArray<NSString *> *)supportedAuthenticationMethods;
 
 /**
  Get the fingerprint of the remote host.
@@ -304,7 +304,7 @@ typedef NS_ENUM(NSInteger, NMSSHKnownHostStatus) {
  @param files An array of filenames to check, or `nil` to use the default paths.
  @returns Known host status for current host.
  */
-- (NMSSHKnownHostStatus)knownHostStatusInFiles:(NSArray *)files;
+- (NMSSHKnownHostStatus)knownHostStatusInFiles:(NSArray<NSString *> *)files;
 
 /**
  Adds the passed-in host to the user's known hosts file.

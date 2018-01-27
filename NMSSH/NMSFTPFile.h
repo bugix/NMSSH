@@ -59,4 +59,11 @@
  */
 - (void)populateValuesFromSFTPAttributes:(LIBSSH2_SFTP_ATTRIBUTES)fileAttributes;
 
+/**
+ Ensures that the sorting of the files is according to their filenames.
+
+ @param file The other file that it should be compared to.
+ @return The comparison result that determines the order of the two files.
+ */
+- (NSComparisonResult)compare:(NMSFTPFile *)file;
 @end

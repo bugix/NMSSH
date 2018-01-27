@@ -117,15 +117,15 @@
     return libssh2_sftp_rmdir(self.sftpSession, [path UTF8String]) == 0;
 }
 
-- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path {
+- (NSArray<NMSFTPFile *> *)contentsOfDirectoryAtPath:(NSString *)path {
     LIBSSH2_SFTP_HANDLE *handle = [self openDirectoryAtPath:path];
 
     if (!handle) {
         return nil;
     }
 
-    NSArray *ignoredFiles = @[@".", @".."];
-    NSMutableArray *contents = [NSMutableArray array];
+    NSArray<NSString *> *ignoredFiles = @[@".", @".."];
+    NSMutableArray<NMSFTPFile *> *contents = [NSMutableArray<NSString *> array];
 
     int rc;
     do {
@@ -159,8 +159,8 @@
         NMSSHLogError(@"Failed to close directory");
     }
 
-    return [contents sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
+    return [contents sortedArrayUsingComparator:^NSComparisonResult(NMSFTPFile *file1, NMSFTPFile *file2) {
+        return [file1 compare:file2];
     }];
 }
 

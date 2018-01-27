@@ -8,7 +8,7 @@
 /**
  Patterns specified in the config file.
  */
-@property(nonatomic, strong) NSArray *hostPatterns;
+@property(nonatomic, strong) NSArray<NSString *> *hostPatterns;
 
 /**
  Specifies the real host name to log into. If the hostname contains the
@@ -29,7 +29,7 @@
 @property(nonatomic, strong) NSNumber *port;
 
 /**
- Specifies alist of file names from which the user's DSA, ECDSA or RSA
+ Specifies a list of file names from which the user's DSA, ECDSA or RSA
  authentication identity are read. It is empty by default. Tildes will be
  expanded to the user's home directory. The client should perform the following
  substitutions on each file name:
@@ -40,7 +40,7 @@
    "%r" should be replaced with the remote user name
  If multiple identities are provided, the client should try them in order.
  */
-@property(nonatomic, strong) NSArray *identityFiles;
+@property(nonatomic, strong) NSArray<NSString *> *identityFiles;
 
 /**
  Values for {other} are copied to {self} if not already set. Arrays are

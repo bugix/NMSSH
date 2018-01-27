@@ -45,7 +45,7 @@
  Ensures that the sorting of the files is according to their filenames.
  
  @param file The other file that it should be compared to.
- @return The comparison result that determins the order of the two files.
+ @return The comparison result that determines the order of the two files.
  */
 - (NSComparisonResult)compare:(NMSFTPFile *)file {
     return [self.filename localizedCaseInsensitiveCompare:file.filename];
@@ -56,6 +56,8 @@
  @param object The other file that it should be compared with
  @return YES in case the two objects are considered equal, NO otherwise.
  */
+
+
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:[NMSFTPFile class]]) {
         return NO;

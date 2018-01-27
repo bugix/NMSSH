@@ -101,7 +101,7 @@
  @param path Existing directory to list items from
  @returns List of relative paths
  */
-- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path;
+- (NSArray<NMSFTPFile *> *)contentsOfDirectoryAtPath:(NSString *)path;
 
 /// ----------------------------------------------------------------------------
 /// @name Manipulate symlinks and files
