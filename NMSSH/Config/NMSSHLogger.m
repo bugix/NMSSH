@@ -1,5 +1,4 @@
 #import "NMSSHLogger.h"
-#import "NMSSH+Protected.h"
 
 typedef NS_OPTIONS(NSUInteger, NMSSHLogFlag) {
     NMSSHLogFlagVerbose = (1 << 0),

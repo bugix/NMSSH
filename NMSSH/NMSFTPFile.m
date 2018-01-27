@@ -1,5 +1,4 @@
 #import "NMSFTPFile.h"
-#import "NMSSH+Protected.h"
 
 @interface NMSFTPFile ()
 @property (nonatomic, strong) NSString *filename;

@@ -20,9 +20,9 @@
 - (void)setUp {
     settings = [ConfigHelper valueForKey:@"valid_password_protected_server"];
 
-    session = [NMSSHSession connectToHost:[settings objectForKey:@"host"]
-                             withUsername:[settings objectForKey:@"user"]];
-    [session authenticateByPassword:[settings objectForKey:@"password"]];
+    session = [NMSSHSession connectToHost:settings[@"host"]
+                             withUsername:settings[@"user"]];
+    [session authenticateByPassword:settings[@"password"]];
     assert([session isAuthorized]);
 
     sftp = [NMSFTP connectWithSession:session];
@@ -54,10 +54,10 @@
 
 - (void)testCreateMoveAndDeleteDirectoryAtWritablePathWorks {
     NSString *path = [NSString stringWithFormat:@"%@mkdir_test",
-                         [settings objectForKey:@"writable_dir"]];
+                                                settings[@"writable_dir"]];
 
     NSString *destPath = [NSString stringWithFormat:@"%@mvdir_test",
-                             [settings objectForKey:@"writable_dir"]];
+                                                    settings[@"writable_dir"]];
 
     XCTAssertTrue([sftp createDirectoryAtPath:path],
                  @"Try to create directory at valid path");
@@ -74,7 +74,7 @@
 
 - (void)testCreateDirectoryAtNonWritablePathFails {
     NSString *path = [NSString stringWithFormat:@"%@mkdir_test",
-                      [settings objectForKey:@"non_writable_dir"]];
+                                                settings[@"non_writable_dir"]];
 
     XCTAssertFalse([sftp createDirectoryAtPath:path],
                   @"Try to create directory at invalid path");
@@ -82,7 +82,7 @@
 
 - (void)testListingContentsOfDirectory {
     NSString *baseDir = [NSString stringWithFormat:@"%@listing/",
-                         [settings objectForKey:@"writable_dir"]];
+                                                   settings[@"writable_dir"]];
     NSArray *dirs = @[@"a", @"b", @"c"];
     NSArray *files = @[@"d.txt", @"e.txt", @"f.txt"];
 
@@ -133,12 +133,12 @@
 - (void)testCreateAndDeleteSymlinkAtWritablePath {
     // Set up a new directory to symlink to
     NSString *path = [NSString stringWithFormat:@"%@mkdir_test",
-                         [settings objectForKey:@"writable_dir"]];
+                                                settings[@"writable_dir"]];
     [sftp createDirectoryAtPath:path];
 
     // Create symlink
     NSString *linkPath = [NSString stringWithFormat:@"%@symlink_test",
-                             [settings objectForKey:@"writable_dir"]];
+                                                    settings[@"writable_dir"]];
     XCTAssertTrue([sftp createSymbolicLinkAtPath:linkPath
                             withDestinationPath:path], @"Create symbolic link");
 
@@ -151,9 +151,9 @@
 
 - (void)testCreateMoveAndDeleteFileAtWriteablePath {
     NSString *path = [NSString stringWithFormat:@"%@file_test.txt",
-                      [settings objectForKey:@"writable_dir"]];
+                                                settings[@"writable_dir"]];
     NSString *destPath = [NSString stringWithFormat:@"%@mvfile_test.txt",
-                             [settings objectForKey:@"writable_dir"]];
+                                                    settings[@"writable_dir"]];
 
     NSMutableData *contents = [[@"Hello World" dataUsingEncoding:NSUTF8StringEncoding]
                                mutableCopy];
@@ -175,15 +175,15 @@
     XCTAssertTrue([sftp moveItemAtPath:path toPath:destPath], @"Move a file");
 
     XCTAssertTrue([sftp fileExistsAtPath:destPath], @"File exists at path");
-    XCTAssertFalse([sftp fileExistsAtPath:[settings objectForKey:@"writable_dir"]],
+    XCTAssertFalse([sftp fileExistsAtPath:settings[@"writable_dir"]],
                   @"Should return false if a directory is provided");
 
     XCTAssertTrue([sftp removeFileAtPath:destPath], @"Remove file");
 }
 
 -(void)testRetrievingFileInfo {
-    NSString *destPath = [[settings objectForKey:@"writable_dir"] stringByAppendingPathComponent: @"file_test.txt"];
-    NSString *destDirectoryPath = [[settings objectForKey:@"writable_dir"] stringByAppendingPathComponent: @"directory_test"];
+    NSString *destPath = [settings[@"writable_dir"] stringByAppendingPathComponent:@"file_test.txt"];
+    NSString *destDirectoryPath = [settings[@"writable_dir"] stringByAppendingPathComponent:@"directory_test"];
     XCTAssertTrue([sftp writeContents:[@"test" dataUsingEncoding:NSUTF8StringEncoding] toFileAtPath:destPath],@"Write contents to file");
     XCTAssertTrue([sftp createDirectoryAtPath:destDirectoryPath], @"Couldn't create directory");
     

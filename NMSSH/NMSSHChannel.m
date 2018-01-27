@@ -179,7 +179,7 @@
     NMSSHLogInfo(@"Exec command %@", command);
 
     // In case of error...
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:command forKey:@"command"];
+    NSMutableDictionary *userInfo = [@{@"command": command} mutableCopy];
 
     if (![self openChannel:error]) {
         return nil;

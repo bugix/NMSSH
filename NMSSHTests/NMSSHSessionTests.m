@@ -42,9 +42,8 @@
 // -----------------------------------------------------------------------------
 
 - (void)testConnectionToValidServerWorks {
-    NSString *host = [validPasswordProtectedServer objectForKey:@"host"];
-    NSString *username = [validPasswordProtectedServer
-                               objectForKey:@"user"];
+    NSString *host = validPasswordProtectedServer[@"host"];
+    NSString *username = validPasswordProtectedServer[@"user"];
 
     XCTAssertNoThrow(session = [NMSSHSession connectToHost:host
                                              withUsername:username],
@@ -55,8 +54,8 @@
 }
 
 - (void)testConnectionToInvalidServerFails {
-    NSString *host = [invalidServer objectForKey:@"host"];
-    NSString *username = [invalidServer objectForKey:@"user"];
+    NSString *host = invalidServer[@"host"];
+    NSString *username = invalidServer[@"user"];
 
     XCTAssertNoThrow(session = [NMSSHSession connectToHost:host
                                              withUsername:username],
@@ -71,11 +70,9 @@
 // -----------------------------------------------------------------------------
 
 - (void)testPasswordAuthenticationWithValidPasswordWorks {
-    NSString *host = [validPasswordProtectedServer objectForKey:@"host"];
-    NSString *username = [validPasswordProtectedServer
-                               objectForKey:@"user"];
-    NSString *password = [validPasswordProtectedServer
-                               objectForKey:@"password"];
+    NSString *host = validPasswordProtectedServer[@"host"];
+    NSString *username = validPasswordProtectedServer[@"user"];
+    NSString *password = validPasswordProtectedServer[@"password"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -88,10 +85,9 @@
 }
 
 - (void)testPasswordAuthenticationWithInvalidPasswordFails {
-    NSString *host = [validPasswordProtectedServer objectForKey:@"host"];
-    NSString *username = [validPasswordProtectedServer
-                               objectForKey:@"user"];
-    NSString *password = [invalidServer objectForKey:@"password"];
+    NSString *host = validPasswordProtectedServer[@"host"];
+    NSString *username = validPasswordProtectedServer[@"user"];
+    NSString *password = invalidServer[@"password"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -104,9 +100,9 @@
 }
 
 - (void)testPasswordAuthenticationWithInvalidUserFails {
-    NSString *host = [validPasswordProtectedServer objectForKey:@"host"];
-    NSString *username = [invalidServer objectForKey:@"user"];
-    NSString *password = [invalidServer objectForKey:@"password"];
+    NSString *host = validPasswordProtectedServer[@"host"];
+    NSString *username = invalidServer[@"user"];
+    NSString *password = invalidServer[@"password"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -120,12 +116,10 @@
 }
 
 - (void)testPublicKeyAuthenticationWithValidKeyWorks {
-    NSString *host = [validPublicKeyProtectedServer objectForKey:@"host"];
-    NSString *username = [validPublicKeyProtectedServer objectForKey:@"user"];
-    NSString *publicKey = [validPublicKeyProtectedServer
-                           objectForKey:@"valid_public_key"];
-    NSString *password = [validPublicKeyProtectedServer
-                          objectForKey:@"password"];
+    NSString *host = validPublicKeyProtectedServer[@"host"];
+    NSString *username = validPublicKeyProtectedServer[@"user"];
+    NSString *publicKey = validPublicKeyProtectedServer[@"valid_public_key"];
+    NSString *password = validPublicKeyProtectedServer[@"password"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -140,10 +134,9 @@
 }
 
 - (void)testPublicKeyAuthenticationWithInvalidPasswordFails {
-    NSString *host = [validPublicKeyProtectedServer objectForKey:@"host"];
-    NSString *username = [validPublicKeyProtectedServer objectForKey:@"user"];
-    NSString *publicKey = [validPublicKeyProtectedServer
-                           objectForKey:@"valid_public_key"];
+    NSString *host = validPublicKeyProtectedServer[@"host"];
+    NSString *username = validPublicKeyProtectedServer[@"user"];
+    NSString *publicKey = validPublicKeyProtectedServer[@"valid_public_key"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -160,10 +153,9 @@
 
 
 - (void)testPublicKeyAuthenticationWithInvalidKeyFails {
-    NSString *host = [validPublicKeyProtectedServer objectForKey:@"host"];
-    NSString *username = [validPublicKeyProtectedServer objectForKey:@"user"];
-    NSString *publicKey = [validPublicKeyProtectedServer
-                           objectForKey:@"invalid_public_key"];
+    NSString *host = validPublicKeyProtectedServer[@"host"];
+    NSString *username = validPublicKeyProtectedServer[@"user"];
+    NSString *publicKey = validPublicKeyProtectedServer[@"invalid_public_key"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -178,12 +170,10 @@
 }
 
 - (void)testPublicKeyAuthenticationWithInvalidUserFails {
-    NSString *host = [validPublicKeyProtectedServer objectForKey:@"host"];
-    NSString *username = [invalidServer objectForKey:@"user"];
-    NSString *publicKey = [validPublicKeyProtectedServer
-                           objectForKey:@"valid_public_key"];
-    NSString *password = [validPublicKeyProtectedServer
-                          objectForKey:@"password"];
+    NSString *host = validPublicKeyProtectedServer[@"host"];
+    NSString *username = invalidServer[@"user"];
+    NSString *publicKey = validPublicKeyProtectedServer[@"valid_public_key"];
+    NSString *password = validPublicKeyProtectedServer[@"password"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -198,8 +188,8 @@
 }
 
 - (void)testValidConnectionToAgent {
-    NSString *host = [validAgentServer objectForKey:@"host"];
-    NSString *username = [validAgentServer objectForKey:@"user"];
+    NSString *host = validAgentServer[@"host"];
+    NSString *username = validAgentServer[@"user"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 
@@ -211,8 +201,8 @@
 }
 
 - (void)testInvalidConnectionToAgent {
-    NSString *host = [validAgentServer objectForKey:@"host"];
-    NSString *username = [invalidServer objectForKey:@"user"];
+    NSString *host = validAgentServer[@"host"];
+    NSString *username = invalidServer[@"user"];
 
     session = [NMSSHSession connectToHost:host withUsername:username];
 

@@ -21,9 +21,9 @@
 - (void)setUp {
     settings = [ConfigHelper valueForKey:@"valid_password_protected_server"];
 
-    session = [NMSSHSession connectToHost:[settings objectForKey:@"host"]
-                             withUsername:[settings objectForKey:@"user"]];
-    [session authenticateByPassword:[settings objectForKey:@"password"]];
+    session = [NMSSHSession connectToHost:settings[@"host"]
+                             withUsername:settings[@"user"]];
+    [session authenticateByPassword:settings[@"password"]];
     assert([session isAuthorized]);
 
     // Setup test file for SCP
@@ -64,12 +64,12 @@
     channel = [[NMSSHChannel alloc] initWithSession:session];
 
     NSError *error = nil;
-    XCTAssertNoThrow([channel execute:[settings objectForKey:@"execute_command"]
+    XCTAssertNoThrow([channel execute:settings[@"execute_command"]
                                error:&error],
                     @"Execution should not throw an exception");
 
     XCTAssertEqualObjects([channel lastResponse],
-                         [settings objectForKey:@"execute_expected_response"],
+            settings[@"execute_expected_response"],
                          @"Execution returns the expected response");
 }
 
@@ -79,7 +79,7 @@
 
 - (void)testUploadingFileToWritableDirWorks {
     channel = [[NMSSHChannel alloc] initWithSession:session];
-    NSString *dir = [settings objectForKey:@"writable_dir"];
+    NSString *dir = settings[@"writable_dir"];
     XCTAssertTrue([dir hasSuffix:@"/"], @"Directory must end with a slash");
 
     BOOL result;
@@ -91,7 +91,7 @@
 
 - (void)testUploadingFileToNonWritableDirFails {
     channel = [[NMSSHChannel alloc] initWithSession:session];
-    NSString *dir = [settings objectForKey:@"non_writable_dir"];
+    NSString *dir = settings[@"non_writable_dir"];
 
     BOOL result;
     XCTAssertNoThrow(result = [channel uploadFile:localFilePath to:dir],
@@ -105,7 +105,7 @@
     channel = [[NMSSHChannel alloc] initWithSession:session];
 
     [[NSFileManager defaultManager] removeItemAtPath:localFilePath error:nil];
-    NSString *remoteFile = [[settings objectForKey:@"writable_dir"] stringByAppendingPathComponent:@"nmssh-test.txt"];
+    NSString *remoteFile = [settings[@"writable_dir"] stringByAppendingPathComponent:@"nmssh-test.txt"];
 
     BOOL result;
     XCTAssertNoThrow(result = [channel downloadFile:remoteFile to:localFilePath],
@@ -121,7 +121,7 @@
 
     [[NSFileManager defaultManager] removeItemAtPath:localFilePath error:nil];
     NSString *remoteFile = [NSString stringWithFormat:@"%@nmssh-test.txt",
-                            [settings objectForKey:@"non_writable_dir"]];
+                                                      settings[@"non_writable_dir"]];
 
     BOOL result;
     XCTAssertNoThrow(result = [channel downloadFile:remoteFile to:localFilePath],
