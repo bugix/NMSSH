@@ -125,7 +125,7 @@
     }
 
     NSArray<NSString *> *ignoredFiles = @[@".", @".."];
-    NSMutableArray<NMSFTPFile *> *contents = [NSMutableArray<NSString *> array];
+    NSMutableArray<NMSFTPFile *> *contents = [NSMutableArray<NMSFTPFile *> array];
 
     int rc;
     do {

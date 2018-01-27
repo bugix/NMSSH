@@ -10,18 +10,18 @@
     return self;
 }
 
-- (NSArray<NSObject *> *)arrayByRemovingDuplicateElementsFromArray:(NSArray<NSObject *> *)array {
-    NSMutableArray<NSObject *> *deduped = [NSMutableArray<NSObject *> array];
-    for (NSObject *object in array) {
-        if (![deduped containsObject:object]) {
-            [deduped addObject:object];
+- (NSArray<NSString *> *)arrayByRemovingDuplicateElementsFromArray:(NSArray<NSString *> *)array {
+    NSMutableArray<NSString *> *deduped = [NSMutableArray<NSString *> array];
+    for (NSString *string in array) {
+        if (![deduped containsObject:string]) {
+            [deduped addObject:string];
         }
     }
     return [deduped copy];
 }
 
-- (NSArray<NSObject *> *)mergedArray:(NSArray<NSObject *> *)firstArray withArray:(NSArray<NSObject *> *)secondArray {
-    NSArray<NSObject *> *concatenated = [firstArray arrayByAddingObjectsFromArray:secondArray];
+- (NSArray<NSString *> *)mergedArray:(NSArray<NSString *> *)firstArray withArray:(NSArray<NSString *> *)secondArray {
+    NSArray<NSString *> *concatenated = [firstArray arrayByAddingObjectsFromArray:secondArray];
     return [self arrayByRemovingDuplicateElementsFromArray:concatenated];
 }
 

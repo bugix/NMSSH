@@ -50,7 +50,7 @@ typedef enum {
 #pragma mark - PARSING
 // -----------------------------------------------------------------------------
 
-- (NSArray<NSString *> *)arrayFromString:(NSString *)contents {
+- (NSArray<NMSSHHostConfig *> *)arrayFromString:(NSString *)contents {
     if (contents == nil) {
         return nil;
     }
@@ -59,7 +59,7 @@ typedef enum {
                                                    withString:@"\n"];
     NSArray<NSString *> *lines = [contents componentsSeparatedByString:@"\n"];
 
-    NSMutableArray<NSString *> *array = [NSMutableArray<NSString *> array];
+    NSMutableArray<NMSSHHostConfig *> *array = [NSMutableArray<NMSSHHostConfig *> array];
     for (NSString *line in lines) {
         [self parseLine:line intoArray:array];
     }
@@ -67,7 +67,7 @@ typedef enum {
     return [array copy];
 }
 
-- (void)parseLine:(NSString *)line intoArray:(NSMutableArray<NSString *> *)array {
+- (void)parseLine:(NSString *)line intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     // Trim spaces
     line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 
@@ -103,7 +103,7 @@ typedef enum {
     }
 }
 
-- (void)parseHostWithArguments:(NSString *)arguments intoArray:(NSMutableArray<NSString *> *)array {
+- (void)parseHostWithArguments:(NSString *)arguments intoArray:(NSMutableArray<NMSSHHostConfig *> *)array {
     NMSSHHostConfig *config = [[NMSSHHostConfig alloc] init];
     NSString *next;
 
