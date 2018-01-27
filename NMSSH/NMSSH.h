@@ -1,10 +1,7 @@
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-//! Project version number for NMSSH.
-FOUNDATION_EXPORT double NMSSHVersionNumber;
-
-//! Project version string for NMSSH.
-FOUNDATION_EXPORT const unsigned char NMSSHVersionString[];
+#ifndef _NMSSH_
+#define _NMSSH_
 
 #import "libssh2.h"
 #import "libssh2_sftp.h"
@@ -21,3 +18,4 @@ FOUNDATION_EXPORT const unsigned char NMSSHVersionString[];
 
 #import "NMSSHLogger.h"
 
+#endif
