@@ -6,7 +6,6 @@ FOUNDATION_EXPORT double NMSSHVersionNumber;
 //! Project version string for NMSSH.
 FOUNDATION_EXPORT const unsigned char NMSSHVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <NMSSH/PublicHeader.h>
 #import "libssh2.h"
 #import "libssh2_sftp.h"
 
