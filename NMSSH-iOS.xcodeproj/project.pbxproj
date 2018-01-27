@@ -53,7 +53,6 @@
 		18A0966917D6AA3D008B76FB /* socket_helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 18A0966617D6AA3D008B76FB /* socket_helper.m */; };
 		18A0967117D6AA51008B76FB /* NMSFTP.h in Headers */ = {isa = PBXBuildFile; fileRef = 18A0966A17D6AA51008B76FB /* NMSFTP.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		18A0967217D6AA51008B76FB /* NMSFTP.m in Sources */ = {isa = PBXBuildFile; fileRef = 18A0966B17D6AA51008B76FB /* NMSFTP.m */; };
-		18A0967317D6AA51008B76FB /* NMSSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 18A0966C17D6AA51008B76FB /* NMSSH.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		18A0967417D6AA51008B76FB /* NMSSHChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 18A0966D17D6AA51008B76FB /* NMSSHChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		18A0967517D6AA51008B76FB /* NMSSHChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 18A0966E17D6AA51008B76FB /* NMSSHChannel.m */; };
 		18A0967617D6AA51008B76FB /* NMSSHSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 18A0966F17D6AA51008B76FB /* NMSSHSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -88,7 +87,6 @@
 		18A0966617D6AA3D008B76FB /* socket_helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = socket_helper.m; sourceTree = "<group>"; };
 		18A0966A17D6AA51008B76FB /* NMSFTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSFTP.h; sourceTree = "<group>"; };
 		18A0966B17D6AA51008B76FB /* NMSFTP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMSFTP.m; sourceTree = "<group>"; };
-		18A0966C17D6AA51008B76FB /* NMSSH.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSSH.h; sourceTree = "<group>"; };
 		18A0966D17D6AA51008B76FB /* NMSSHChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSSHChannel.h; sourceTree = "<group>"; };
 		18A0966E17D6AA51008B76FB /* NMSSHChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMSSHChannel.m; sourceTree = "<group>"; };
 		18A0966F17D6AA51008B76FB /* NMSSHSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSSHSession.h; sourceTree = "<group>"; };
@@ -186,7 +184,6 @@
 		18A0965217D6A8C4008B76FB /* NMSSH */ = {
 			isa = PBXGroup;
 			children = (
-				18A0966C17D6AA51008B76FB /* NMSSH.h */,
 				18A0966D17D6AA51008B76FB /* NMSSHChannel.h */,
 				18A0966E17D6AA51008B76FB /* NMSSHChannel.m */,
 				18A0966A17D6AA51008B76FB /* NMSFTP.h */,
@@ -305,7 +302,6 @@
 			files = (
 				18A0967117D6AA51008B76FB /* NMSFTP.h in Headers */,
 				E46F9E21188AC7010056E5DB /* NMSFTPFile.h in Headers */,
-				18A0967317D6AA51008B76FB /* NMSSH.h in Headers */,
 				18A0967417D6AA51008B76FB /* NMSSHChannel.h in Headers */,
 				18A0967617D6AA51008B76FB /* NMSSHSession.h in Headers */,
 				18A0967B17D6AA64008B76FB /* NMSSHChannelDelegate.h in Headers */,
